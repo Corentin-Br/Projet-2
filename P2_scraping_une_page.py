@@ -87,7 +87,7 @@ def page_scraping(url = str()) :
 
 if __name__ == "__main__" : ##Permet au script d'être utilisé en standalone pour scraper une page précise, tout en permettant son import
     while True :
-        url= input("What page do you want to scrape?")
+        url= input("Quelle page voulez-vous scraper?")
         data = page_scraping(url)
         if type(data) == list :
             with open("{name}.csv".format (name = data[1]), "w") as file :
