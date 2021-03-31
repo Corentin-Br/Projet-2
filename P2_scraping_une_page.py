@@ -2,7 +2,7 @@ import requests
 from bs4 import BeautifulSoup
 
 def fatal(url, raison) :
-    print("Une erreur est survenue lors de l'obtention de {chose}. Vérifiez que vous scrapez bien la page d'un livre. L'URL fautive est {url}".format(url = url, chose = raison))
+    print("Une erreur est survenue lors de l'obtention de {chose}. Vérifiez que vous scrapez bien la page appropriée (la page d'un livre ou d'une catégorie selon le script utilisé). L'URL fautive est {url}".format(url = url, chose = raison))
 
 def page_scraping(url = str()) :
     if not url.startswith ("http://books.toscrape.com") :
@@ -83,7 +83,7 @@ def page_scraping(url = str()) :
 
 
     else :
-        return("An error has occured and the page could not be reached.")
+        return("Une erreur est survenue et la page {url} n'a pas pu être atteinte.".format(url = url))
 
 if __name__ == "__main__" : ##Permet au script d'être utilisé en standalone pour scraper une page précise, tout en permettant son import
     while True :
