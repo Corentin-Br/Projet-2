@@ -8,8 +8,9 @@ def page_scraping(url = str()) :
     if not url.startswith ("http://books.toscrape.com") :
         return("L'URL donnée n'est pas valide. Le script ne peut scraper que sur http://books.toscrape.com .")
     response = requests.get(url)
+    response.encoding = "utf-8"
     if response.ok :
-        soup = BeautifulSoup(response.text, features="html.parser")
+        soup = BeautifulSoup(response.text, features="lxml")        
         
         
         tags_to_search = {"UPC" : str(),
@@ -30,6 +31,7 @@ def page_scraping(url = str()) :
             if th.text in tags_to_search :
                 td = tr.find("td")
                 tags_to_search[th.text] = td.text
+                
 
         number_available = str() ##Obtient et rend propre le nombre de livres disponibles.
         for char in tags_to_search["Availability"] :
@@ -39,7 +41,7 @@ def page_scraping(url = str()) :
         content = soup.findAll('li')  ##Obtient la catégorie et le titre.
         try : 
             category = content[2].find("a").text
-            title = content[3].text
+            title = "\"" + content[3].text.replace("\"", "❞") + "\""  ##certains noms contiennent une virgule. Les apostrophes vont permettre de gérer ça pour Libre Office
         except (IndexError, AttributeError) :
             fatal(url, "catégorie/titre")
             return
@@ -56,7 +58,8 @@ def page_scraping(url = str()) :
                 starting_index = k
                 break;
         description = description[starting_index:]
-        description = "\'" + description  + "\'" #L'ajout des apostrophes permet à Libre Office de l'ouvrir correctement (avec les bons paramètres). Il y a peut-être moyen de faire mieux.
+        description.replace("\"", "❞")
+        description = "\"" + description  + "\"" #L'ajout des guillemets permet à Libre Office de l'ouvrir correctement (avec les bons paramètres). Il y a peut-être moyen de faire mieux.
 
 
         try :
@@ -68,14 +71,6 @@ def page_scraping(url = str()) :
         for thing in classes :
             if thing in possible_ratings :
                 rating = possible_ratings[thing]
-        try : 
-            if tags_to_search["Price (incl. tax)"][0] != "£" :
-                tags_to_search["Price (incl. tax)"] = tags_to_search["Price (incl. tax)"][1:]
-            if tags_to_search["Price (excl. tax)"][0] != "£" :
-                tags_to_search["Price (excl. tax)"] = tags_to_search["Price (excl. tax)"][1:] ##Résout le problème d'encodage apparent s'il est présent. On verra pour trouver mieux.
-        except IndexError:
-            fatal(url , "prix")
-            return
         
         try :
             image = soup.find("img")["src"].replace("../..", "books.toscrape.com")
@@ -83,22 +78,22 @@ def page_scraping(url = str()) :
             fatal(url, "image")
             return
 
-        all_data = [url, tags_to_search["UPC"], title, tags_to_search["Price (incl. tax)"], tags_to_search["Price (excl. tax)"], number_available, description, category, rating, image]
-        if str() in all_data :
-            return("Certaines valeurs sont incorrectes ou ienxistantes. Vérifiez que vous scrapez bien la page d'un livre. L'URL fautive est {url}".format(url = url))
-            
-        
-        with open("{cat}.csv".format(cat = category), "w") as file :
-            file.write("""product_page_url, universal_product_code (upc), title, price_including_tax, price_excluding_tax, number_available, product_description, category, review_rating, image_url \n""")
-            
-            file.write(", ".join(all_data)) 
-            file.write("\n")
+        return([url, tags_to_search["UPC"], title, tags_to_search["Price (incl. tax)"], tags_to_search["Price (excl. tax)"], number_available, description, category, rating, image])
+
 
 
     else :
         return("An error has occured and the page could not be reached.")
 
-while True :
-    url= input("What page do you want to scrape?")
-    page_scraping(url)
+if __name__ == "__main__" : ##Permet au script d'être utilisé en standalone pour scraper une page précise, tout en permettant son import
+    while True :
+        url= input("What page do you want to scrape?")
+        data = page_scraping(url)
+        if type(data) == list :
+            with open("{name}.csv".format (name = data[1]), "w") as file :
+                    file.write("""product_page_url, universal_product_code (upc), title, price_including_tax, price_excluding_tax, number_available, product_description, category, review_rating, image_url \n""")
+                    file.write(", ".join(data)) 
+                    file.write("\n")
+        else :
+            print(data)
         
