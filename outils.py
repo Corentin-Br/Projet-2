@@ -13,10 +13,14 @@ if response.ok :
             key = key[1:]
         if key.endswith(" "):
             key = key [:-2]
+        key = key.lower()
         value = a.get("href")
         value = "http://books.toscrape.com/" + value
         dic[key] = value
+    print("{")
+    for key in dic :
+        print("'" + key +"':  '" + dic[key] +"',")
+    print("}")
     
-    print(dic)
     
     
