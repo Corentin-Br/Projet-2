@@ -1,10 +1,19 @@
 import requests
+import urllib.request
 from bs4 import BeautifulSoup
+from os import mkdir
+
+def cleaning(string) : ##Try to make sure the name will be valid for a file name
+    forbidden_characters = ["\\", "/", ":", "*", "?", "\"", "<", ">", "|"]
+    for char in forbidden_characters :
+        if char in string :
+            string = " ".join(string.split(char))
+    return(string) 
 
 def fatal(url, raison) :
     print("Une erreur est survenue lors de l'obtention de {chose}. Vérifiez que vous scrapez bien la page appropriée (la page d'un livre ou d'une catégorie selon le script utilisé). L'URL fautive est {url}".format(url = url, chose = raison))
 
-def page_scraping(url = str()) :
+def page_scraping(url = str(), getpic = False) :
     if not url.startswith ("http://books.toscrape.com") :
         return("L'URL donnée n'est pas valide. Le script ne peut scraper que sur http://books.toscrape.com .")
     response = requests.get(url)
@@ -42,6 +51,7 @@ def page_scraping(url = str()) :
         try : 
             category = content[2].find("a").text
             title = "\"" + content[3].text.replace("\"", "❞") + "\""  ##certains noms contiennent une virgule. Les apostrophes vont permettre de gérer ça pour Libre Office
+            title = cleaning(title)
         except (IndexError, AttributeError) :
             fatal(url, "catégorie/titre")
             return
@@ -52,12 +62,9 @@ def page_scraping(url = str()) :
             fatal(url , "description")
             return
 
-        starting_index = 0
-        for k in range(len(description)) :
-            if description[k] != " " and description[k] != "\n" :
-                starting_index = k
-                break;
-        description = description[starting_index:]
+    
+        description = description.replace("\n", "")
+        description = description.strip()
         description.replace("\"", "❞")
         description = "\"" + description  + "\"" #L'ajout des guillemets permet à Libre Office de l'ouvrir correctement (avec les bons paramètres). Il y a peut-être moyen de faire mieux.
 
@@ -73,10 +80,18 @@ def page_scraping(url = str()) :
                 rating = possible_ratings[thing]
         
         try :
-            image = soup.find("img")["src"].replace("../..", "books.toscrape.com")
+            image = soup.find("img")["src"].replace("../..", "http://books.toscrape.com")
         except :
             fatal(url, "image")
             return
+        if getpic == True :
+            try :
+                urllib.request.urlretrieve(image, "{cat}\\{name}.jpg".format(cat = category, name = title))
+            except FileNotFoundError :
+                mkdir(category)
+                urllib.request.urlretrieve(image, "{cat}\\{name}.jpg".format(cat = category, name = title))
+                
+                
 
         return([url, tags_to_search["UPC"], title, tags_to_search["Price (incl. tax)"], tags_to_search["Price (excl. tax)"], number_available, description, category, rating, image])
 
@@ -90,7 +105,7 @@ if __name__ == "__main__" : ##Permet au script d'être utilisé en standalone po
         url= input("Quelle page voulez-vous scraper?")
         data = page_scraping(url)
         if type(data) == list :
-            with open("{name}.csv".format (name = data[1]), "w") as file :
+            with open("{name}.csv".format (name = data[2]), "w") as file :
                     file.write("""product_page_url, universal_product_code (upc), title, price_including_tax, price_excluding_tax, number_available, product_description, category, review_rating, image_url \n""")
                     file.write(", ".join(data)) 
                     file.write("\n")
