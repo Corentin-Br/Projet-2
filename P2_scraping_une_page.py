@@ -108,8 +108,9 @@ if __name__ == "__main__":  # #Permet au script d'être utilisé en standalone p
         data = page_scraping(url)
         if type(data) == list:
             with open("{name}.csv".format(name=data[2]), "w") as file:
-                file.write("""product_page_url, universal_product_code (upc), title, price_including_tax, 
-                price_excluding_tax, number_available, product_description, category, review_rating, image_url \n""")
+                file.write("product_page_url, universal_product_code (upc), title, price_including_tax, "
+                           + "price_excluding_tax, number_available, product_description, category, review_rating, "
+                           + " image_url \n""")
                 file.write(", ".join(data))
                 file.write("\n")
         else:
