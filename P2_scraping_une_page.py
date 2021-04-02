@@ -1,5 +1,4 @@
 import requests
-import urllib.request
 from bs4 import BeautifulSoup
 from os import mkdir
 
@@ -86,14 +85,17 @@ def page_scraping(url_page=str(), getpic=False):
         try:
             image = soup.find("img")["src"].replace("../..", "http://books.toscrape.com")
         except(AttributeError, TypeError):
-            fatal(url_page, "image")
+            fatal(url_page, "l'image")
             return
         if getpic:
+            reponse = requests.get(image)
             try:
-                urllib.request.urlretrieve(image, "{cat}\\{name}.jpg".format(cat=category, name=title))
+                with open("{cat}\\{name}.jpg".format(cat=category, name=title), "wb") as file_image:
+                    file_image.write(reponse.content)
             except FileNotFoundError:
                 mkdir(category)
-                urllib.request.urlretrieve(image, "{cat}\\{name}.jpg".format(cat=category, name=title))
+                with open("{cat}\\{name}.jpg".format(cat=category, name=title), "wb") as file_image:
+                    file_image.write(reponse.content)
 
         return [url_page, tags_to_search["UPC"], title, tags_to_search["Price (incl. tax)"],
                 tags_to_search["Price (excl. tax)"], number_available, description, category, rating, image]
@@ -108,8 +110,10 @@ if __name__ == "__main__":  # #Permet au script d'être utilisé en standalone p
         data = page_scraping(url)
         if type(data) == list:
             with open("{name}.csv".format(name=data[2]), "w") as file:
-                file.write("""product_page_url, universal_product_code (upc), title, price_including_tax, 
-                price_excluding_tax, number_available, product_description, category, review_rating, image_url \n""")
+                file.write(
+                    "product_page_url, universal_product_code (upc), title, price_including_tax,"
+                    + " price_excluding_tax, number_available, product_description, category, review_rating,"
+                    + " image_url \n")
                 file.write(", ".join(data))
                 file.write("\n")
         else:

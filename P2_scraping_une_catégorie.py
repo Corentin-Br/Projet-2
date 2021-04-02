@@ -77,9 +77,9 @@ def category_page_scraping(url_category, first_pass=True, getpic=False):
                     pass
                 with open("{cat}\\{cat}.csv".format(cat=category), "w") as file:
                     file.write(
-                        """product_page_url, universal_product_code (upc), title, price_including_tax, 
-                        price_excluding_tax, number_available, product_description, category, review_rating, image_url 
-                        \n""")
+                        "product_page_url, universal_product_code (upc), title, price_including_tax,"
+                        + " price_excluding_tax, number_available, product_description, category, review_rating,"
+                        + " image_url \n")
             except AttributeError:
                 fatal(url_category, "catégorie, trouver la catégorie")
                 return

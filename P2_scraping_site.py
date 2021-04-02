@@ -1,6 +1,7 @@
 import requests
 from bs4 import BeautifulSoup
 from P2_scraping_une_catégorie import category_page_scraping
+import threading
 
 
 def site_scraping():
@@ -18,10 +19,12 @@ def site_scraping():
                 key = key[:-2]
             value = a.get("href")
             value = "http://books.toscrape.com/" + value
-            dic[key] = value
+            dic[key] = threading.Thread(None, category_page_scraping, None, (value, True, True))
         for key in dic:
-            print("Je suis en train de m'occuper de {catégorie}".format(catégorie=key))
-            category_page_scraping(dic[key], getpic=True)
+            dic[key].start()
+        for key in dic:
+            dic[key].join()
+            print("{cat} est terminée".format(cat=key))
     else:
         return"Une erreur est survenue et le site n'a pas pu être contacté."
 
