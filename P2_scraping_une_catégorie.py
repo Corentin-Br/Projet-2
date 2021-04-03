@@ -96,7 +96,7 @@ def category_page_scraping(url_category, first_pass=True, getpic=False):
                 fatal(url_category, "catégorie, trouver les livres")
                 return
 
-            if type(data_from_a_book) == list:  # #la fonction page_scraping ne renvoye pas une liste si elle a eu une
+            if type(data_from_a_book) == list:  # #la fonction page_scraping ne renvoie pas une liste si elle a eu une
                 # erreur
                 with open("{cat}\\{cat}.csv".format(cat=data_from_a_book[-3]), "a") as file:
                     file.write(", ".join(data_from_a_book))

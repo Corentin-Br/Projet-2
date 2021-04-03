@@ -1,6 +1,7 @@
 import requests
 from bs4 import BeautifulSoup
 from os import mkdir
+import time
 
 
 def cleaning(string):  # #Try to make sure the name will be valid for a file name
@@ -53,7 +54,6 @@ def page_scraping(url_page=str(), getpic=False):
             category = content[2].find("a").text
             title = "\"" + content[3].text.replace("\"", "❞") + "\""  # #certains noms contiennent une virgule.
             # Les apostrophes vont permettre de gérer ça pour Libre Office
-            title = cleaning(title)
         except (IndexError, AttributeError):
             fatal(url_page, "catégorie/titre")
             return
@@ -88,15 +88,21 @@ def page_scraping(url_page=str(), getpic=False):
             fatal(url_page, "l'image")
             return
         if getpic:
-            reponse = requests.get(image)
             try:
-                with open("{cat}\\{name}.jpg".format(cat=category, name=title), "wb") as file_image:
+                reponse = requests.get(image)
+            except requests.exceptions.ConnectionError:  # #Sans ralentissement, il semble que des erreurs se
+                # produisent lors de l'utilisation de plusieurs threads. On les détecte, et on force le thread
+                # à patienter
+                time.sleep(1)
+                reponse = requests.get(image)
+
+            try:
+                with open("{cat}\\{name}.jpg".format(cat=category, name=cleaning(title)), "wb") as file_image:
                     file_image.write(reponse.content)
             except FileNotFoundError:
                 mkdir(category)
-                with open("{cat}\\{name}.jpg".format(cat=category, name=title), "wb") as file_image:
+                with open("{cat}\\{name}.jpg".format(cat=category, name=cleaning(title)), "wb") as file_image:
                     file_image.write(reponse.content)
-
         return [url_page, tags_to_search["UPC"], title, tags_to_search["Price (incl. tax)"],
                 tags_to_search["Price (excl. tax)"], number_available, description, category, rating, image]
     else:
@@ -109,7 +115,7 @@ if __name__ == "__main__":  # #Permet au script d'être utilisé en standalone p
         url = input("Quelle page voulez-vous scraper?")
         data = page_scraping(url)
         if type(data) == list:
-            with open("{name}.csv".format(name=data[2]), "w") as file:
+            with open("{name}.csv".format(name=cleaning(data[2])), "w") as file:
                 file.write("product_page_url, universal_product_code (upc), title, price_including_tax,"
                            + " price_excluding_tax, number_available, product_description, category, review_rating,"
                            + " image_url \n")
