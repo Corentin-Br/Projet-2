@@ -83,7 +83,7 @@ def category_page_scraping(url_category, first_pass=True, getpic=False):
                 fatal(url_category, "catégorie, trouver la catégorie")
                 return
 
-        all_books_on_the_page = soup.findAll("li", {"class": "col-xs-6"})
+        all_books_on_the_page = soup.find_all("li", {"class": "col-xs-6"})
         next_button = None  # #Normalement next_button est toujours initialisé par la boucle for juste après. Mais juste
         # au cas où
 
@@ -98,7 +98,7 @@ def category_page_scraping(url_category, first_pass=True, getpic=False):
 
             if type(data_from_a_book) == list:  # #la fonction page_scraping ne renvoie pas une liste si elle a eu une
                 # erreur
-                with open("{cat}\\{cat}.csv".format(cat=data_from_a_book[-3]), "a") as file:
+                with open("{cat}\\{cat}.csv".format(cat=data_from_a_book[-4]), "a") as file:
                     file.write(", ".join(data_from_a_book))
                     file.write("\n")
             else:
