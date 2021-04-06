@@ -70,6 +70,10 @@ def category_page_scraping(url_category, first_pass=True, getpic=False):
     global all_categories
     if url_category.lower() in all_categories:
         url_category = all_categories[url_category.lower()]
+    if not url_category.startswith("http://books.toscrape.com"):
+        print("L'URL donnée n'est pas valide, ou la catégorie n'existe pas."
+              " Le script ne peut scraper que sur http://books.toscrape.com .")
+        return
     response = requests.get(url_category)
     response.encoding = "utf-8"
     if response.ok:
@@ -121,6 +125,18 @@ def category_page_scraping(url_category, first_pass=True, getpic=False):
 
 if __name__ == "__main__":  # #Permet au script d'être utilisé en standalone pour scraper une catégorie précise,
     # tout en permettant son import
-    while True:
+    continuer = "y"
+    while continuer == "y":
         url = input("Quelle catégorie voulez-vous scraper?")
-        data = category_page_scraping(url)
+        pic = input("Voulez-vous récupérer toutes les images des livres de cette catégorie? (y/n)")
+        if pic == "y":
+            pic = True
+        elif pic != "n":
+            print("Votre réponse n'est pas valide. Les images ne seront pas récupérées.")
+            pic = False
+        else:
+            pic = False
+        category_page_scraping(url, getpic=pic)
+        continuer = input("Voulez-vous scraper un autre catégorie? (y/n)")
+        if continuer not in ("y", "n"):
+            print("Votre réponse n'est pas valide, le script va s'arrêter")

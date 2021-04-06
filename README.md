@@ -6,16 +6,17 @@ Créez l'environnement virtuel et installez les prérequis présents dans requir
 Assurez-vous d'avoir un accès à internet.
 	
 ##Utilisation :
+
+Pour utiliser n'importe lequel des trois scripts, utilisez le terminal pour vous placer dans le dossier où se trouve le script et exécutez le script via 'python nom_du_script.py' (e.g : 'python P2_scraping_site.py')
+
 	
-Double-cliquez sur P2_scraping_une_page.py pour obtenir les informations d'un livre à partir de l'URL de celui-ci. 
-Il produira un fichier .csv avec le nom du livre* et les informations requises.
+P2_scraping_une_page.py demandera une URL de livre à scrapper et produira un fichier .csv avec le nom du livre* et les informations requises.
 	
-Double-cliquez sur P2_scraping_une_catégorie.py pour obtenir les informations de tous les livres d'une catégorie à partir du nom ou de l'URL de celle-ci.
+P2_scraping_une_catégorie.py demandera une URL de catégorie ou son nom. Il demandera aussi si vous voulez récupérer les images.
 Il produira un dossier avec le nom de la catégorie dans lequel se trouvera un fichier .csv avec le nom de la catégorie aussi, qui contiendra les informations requises.
 	
-Pour exécuter le scraping du site entier, utilisez le terminal pour vous placer dans le dossier où se trouve P2_scraping_site.py, puis exécutez la commande 'python P2_scraping_site.py'.
-Il produira un dossier par catégorie dans lequel se trouvera l'ensemble des images des couvertures des livres de la catégorie ainsi qu'un fichier .csv qui contiendra les informations requises de la catégorie.
-
+P2_scraping_site.py produira un dossier par catégorie dans lequel se trouvera l'ensemble des images des couvertures des livres de la catégorie ainsi qu'un fichier .csv qui contiendra les informations requises de la catégorie.
+Tous les dossiers se situeront dans un dossier appelé Books_to_scrape.
 	
 * : Certains caractères (\\, /, :, \*, ?, ", <, >, et |) sont retirés du nom du livre pour s'assurer autant que possible que le nom du fichier soit valide.
 

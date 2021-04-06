@@ -3,7 +3,7 @@ from bs4 import BeautifulSoup
 
 
 def cleaning(string):  # #Try to make sure the name will be valid for a file name
-    forbidden_characters = ["\\", "/", ":", "*", "?", "\"", "<", ">", "|"]
+    forbidden_characters = ["\\", "/", ":", "*", "?", "\"", "<", ">", "|", ","]
     for char in forbidden_characters:
         if char in string:
             string = " ".join(string.split(char)).strip()
@@ -13,8 +13,12 @@ def cleaning(string):  # #Try to make sure the name will be valid for a file nam
 def get_image(image_url, category, title):
     reponse = requests.get(image_url)
     if reponse.ok:
-        with open("{cat}\\{name}.jpg".format(cat=category, name=cleaning(title)), "wb") as file_image:
-            file_image.write(reponse.content)
+        try:
+            with open("{cat}\\{name}.jpg".format(cat=category, name=cleaning(title)), "wb") as file_image:
+                file_image.write(reponse.content)
+        except FileNotFoundError:  # #Pour que ça marche en solo
+            with open("{name}.jpg".format(name=cleaning(title)), "wb") as file_image:
+                file_image.write(reponse.content)
     else:
         get_image(image_url, category, title)
 
@@ -105,9 +109,18 @@ def page_scraping(url_page=str(), getpic=False):
 
 if __name__ == "__main__":  # #Permet au script d'être utilisé en standalone pour scraper une page précise,
     # tout en permettant son import
-    while True:
+    continuer = "y"
+    while continuer == "y":
         url = input("Quelle page voulez-vous scraper?")
-        data = page_scraping(url, getpic=True)
+        pic = input("Voulez-vous récupérer l'image? (y/n)")
+        if pic == "y":
+            pic = True
+        elif pic != "n":
+            print("Votre réponse n'est pas valide. L'image ne sera pas récupérée.")
+            pic = False
+        else:
+            pic = False
+        data = page_scraping(url, pic)
         if type(data) == list:
             with open("{name}.csv".format(name=cleaning(data[2])), "w") as file:
                 file.write("product_page_url, universal_product_code (upc), title, price_including_tax,"
@@ -117,3 +130,6 @@ if __name__ == "__main__":  # #Permet au script d'être utilisé en standalone p
                 file.write("\n")
         else:
             print(data)
+        continuer = input("Voulez-vous scraper un autre page? (y/n)")
+        if continuer not in ("y", "n"):
+            print("Votre réponse n'est pas valide, le script va s'arrêter")
