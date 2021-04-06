@@ -1,15 +1,22 @@
 import requests
-import urllib.request
 from bs4 import BeautifulSoup
-from os import mkdir
 
 
 def cleaning(string):  # #Try to make sure the name will be valid for a file name
     forbidden_characters = ["\\", "/", ":", "*", "?", "\"", "<", ">", "|"]
     for char in forbidden_characters:
         if char in string:
-            string = " ".join(string.split(char))
+            string = " ".join(string.split(char)).strip()
     return string
+
+
+def get_image(image_url, category, title):
+    reponse = requests.get(image_url)
+    if reponse.ok:
+        with open("{cat}\\{name}.jpg".format(cat=category, name=cleaning(title)), "wb") as file_image:
+            file_image.write(reponse.content)
+    else:
+        get_image(image_url, category, title)
 
 
 def fatal(url_probleme, raison):
@@ -37,7 +44,7 @@ def page_scraping(url_page=str(), getpic=False):
                             "Four": "4",
                             "Five": "5"}
 
-        content = soup.findAll('tr')  # #Trouve les quatres tags de tags_to_search.
+        content = soup.find_all('tr')  # #Trouve les quatres tags de tags_to_search.
         for tr in content:
             th = tr.find("th")
             if th.text in tags_to_search:
@@ -49,12 +56,11 @@ def page_scraping(url_page=str(), getpic=False):
             if char.isnumeric():
                 number_available += char
 
-        content = soup.findAll('li')  # #Obtient la catégorie et le titre.
+        content = soup.find_all('li')  # #Obtient la catégorie et le titre.
         try:
             category = content[2].find("a").text
             title = "\"" + content[3].text.replace("\"", "❞") + "\""  # #certains noms contiennent une virgule.
             # Les apostrophes vont permettre de gérer ça pour Libre Office
-            title = cleaning(title)
         except (IndexError, AttributeError):
             fatal(url_page, "catégorie/titre")
             return
@@ -86,17 +92,13 @@ def page_scraping(url_page=str(), getpic=False):
         try:
             image = soup.find("img")["src"].replace("../..", "http://books.toscrape.com")
         except(AttributeError, TypeError):
-            fatal(url_page, "image")
+            fatal(url_page, "l'image")
             return
         if getpic:
-            try:
-                urllib.request.urlretrieve(image, "{cat}\\{name}.jpg".format(cat=category, name=title))
-            except FileNotFoundError:
-                mkdir(category)
-                urllib.request.urlretrieve(image, "{cat}\\{name}.jpg".format(cat=category, name=title))
-
+            get_image(image, category, cleaning(title))
         return [url_page, tags_to_search["UPC"], title, tags_to_search["Price (incl. tax)"],
-                tags_to_search["Price (excl. tax)"], number_available, description, category, rating, image]
+                tags_to_search["Price (excl. tax)"], number_available, description, category, rating, image,
+                cleaning(title)]
     else:
         return "Une erreur est survenue et la page {url} n'a pas pu être atteinte.".format(url=url_page)
 
@@ -105,12 +107,12 @@ if __name__ == "__main__":  # #Permet au script d'être utilisé en standalone p
     # tout en permettant son import
     while True:
         url = input("Quelle page voulez-vous scraper?")
-        data = page_scraping(url)
+        data = page_scraping(url, getpic=True)
         if type(data) == list:
-            with open("{name}.csv".format(name=data[2]), "w") as file:
-                file.write("product_page_url, universal_product_code (upc), title, price_including_tax, "
-                           + "price_excluding_tax, number_available, product_description, category, review_rating, "
-                           + " image_url \n""")
+            with open("{name}.csv".format(name=cleaning(data[2])), "w") as file:
+                file.write("product_page_url, universal_product_code (upc), title, price_including_tax,"
+                           + " price_excluding_tax, number_available, product_description, category, review_rating,"
+                           + " image_url, nom_exact_image \n")
                 file.write(", ".join(data))
                 file.write("\n")
         else:

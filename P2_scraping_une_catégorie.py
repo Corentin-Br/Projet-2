@@ -59,6 +59,13 @@ all_categories = {'travel': 'http://books.toscrape.com/catalogue/category/books/
                   }
 
 
+def creer_dossier(nom):
+    try:
+        mkdir(nom)
+    except FileExistsError:
+        pass
+
+
 def category_page_scraping(url_category, first_pass=True, getpic=False):
     global all_categories
     if url_category.lower() in all_categories:
@@ -71,19 +78,16 @@ def category_page_scraping(url_category, first_pass=True, getpic=False):
         if first_pass:  # #créer un fichier au début
             try:
                 category = soup.find("div", {"class": "page-header"}).find("h1").text
-                try:
-                    mkdir(category)
-                except FileExistsError:
-                    pass
+                creer_dossier(category)
                 with open("{cat}\\{cat}.csv".format(cat=category), "w") as file:
-                    file.write("product_page_url, universal_product_code (upc), title, price_including_tax, "
-                               + "price_excluding_tax, number_available, product_description, category, review_rating, "
-                               + " image_url \n""")
+                    file.write("product_page_url, universal_product_code (upc), title, price_including_tax,"
+                               + " price_excluding_tax, number_available, product_description, category, review_rating,"
+                               + " image_url, nom_exact_image \n")
             except AttributeError:
                 fatal(url_category, "catégorie, trouver la catégorie")
                 return
 
-        all_books_on_the_page = soup.findAll("li", {"class": "col-xs-6"})
+        all_books_on_the_page = soup.find_all("li", {"class": "col-xs-6"})
         next_button = None  # #Normalement next_button est toujours initialisé par la boucle for juste après. Mais juste
         # au cas où
 
@@ -96,9 +100,9 @@ def category_page_scraping(url_category, first_pass=True, getpic=False):
                 fatal(url_category, "catégorie, trouver les livres")
                 return
 
-            if type(data_from_a_book) == list:  # #la fonction page_scraping ne renvoye pas une liste si elle a eu une
+            if type(data_from_a_book) == list:  # #la fonction page_scraping ne renvoie pas une liste si elle a eu une
                 # erreur
-                with open("{cat}\\{cat}.csv".format(cat=data_from_a_book[-3]), "a") as file:
+                with open("{cat}\\{cat}.csv".format(cat=data_from_a_book[-4]), "a") as file:
                     file.write(", ".join(data_from_a_book))
                     file.write("\n")
             else:
