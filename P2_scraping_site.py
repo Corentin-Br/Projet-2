@@ -1,7 +1,8 @@
 import requests
 from bs4 import BeautifulSoup
-from P2_scraping_une_catégorie import category_page_scraping
+from P2_scraping_une_catégorie import category_page_scraping, creer_dossier
 from multiprocessing import Pool
+from os import chdir
 
 
 def site_scraping():
@@ -15,6 +16,8 @@ def site_scraping():
             value = a.get("href")
             value = "http://books.toscrape.com/" + value
             liste_categories.append((value, True, True))
+        creer_dossier("Books_to_scrape")
+        chdir("Books_to_scrape")
         with Pool() as pool:
             pool.starmap(category_page_scraping, liste_categories)
             pool.close()
