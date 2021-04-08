@@ -50,3 +50,6 @@
 /Travel/
 /Womens Fiction/
 /Young Adult/
+/Books_to_scrape/
+*.csv
+*.jpg

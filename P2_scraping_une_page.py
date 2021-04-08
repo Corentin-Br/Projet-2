@@ -14,19 +14,19 @@ def get_image(image_url, category, title):
     reponse = requests.get(image_url)
     if reponse.ok:
         try:
-            with open("{cat}\\{name}.jpg".format(cat=category, name=cleaning(title)), "wb") as file_image:
+            with open(f"{category}\\{cleaning(title)}.jpg", "wb") as file_image:
                 file_image.write(reponse.content)
         except FileNotFoundError:  # #Pour que ça marche en solo
-            with open("{name}.jpg".format(name=cleaning(title)), "wb") as file_image:
+            with open(f"{cleaning(title)}.jpg", "wb") as file_image:
                 file_image.write(reponse.content)
     else:
         get_image(image_url, category, title)
 
 
 def fatal(url_probleme, raison):
-    print("Une erreur est survenue lors de l'obtention de {chose}. Vérifiez que vous scrapez bien la page appropriée"
+    print(f"Une erreur est survenue lors de l'obtention de {raison}. Vérifiez que vous scrapez bien la page appropriée"
           " (la page d'un livre ou d'une catégorie selon le script utilisé). "
-          "L'URL fautive est {url}".format(url=url_probleme, chose=raison))
+          f"L'URL fautive est {url_probleme}")
 
 
 def page_scraping(url_page=str(), getpic=False):
@@ -104,7 +104,7 @@ def page_scraping(url_page=str(), getpic=False):
                 tags_to_search["Price (excl. tax)"], number_available, description, category, rating, image,
                 cleaning(title)]
     else:
-        return "Une erreur est survenue et la page {url} n'a pas pu être atteinte.".format(url=url_page)
+        return f"Une erreur est survenue et la page {url_page} n'a pas pu être atteinte."
 
 
 if __name__ == "__main__":  # #Permet au script d'être utilisé en standalone pour scraper une page précise,
@@ -122,11 +122,11 @@ if __name__ == "__main__":  # #Permet au script d'être utilisé en standalone p
             pic = False
         data = page_scraping(url, pic)
         if type(data) == list:
-            with open("{name}.csv".format(name=cleaning(data[2])), "w") as file:
-                file.write("product_page_url, universal_product_code (upc), title, price_including_tax,"
-                           + " price_excluding_tax, number_available, product_description, category, review_rating,"
-                           + " image_url, nom_exact_image \n")
-                file.write(", ".join(data))
+            with open(f"{cleaning(data[2])}.csv", "w") as file:
+                file.write("product_page_url,universal_product_code (upc),title,price_including_tax,"
+                           + "price_excluding_tax,number_available,product_description,category,review_rating,"
+                           + "image_url,nom_exact_image\n")
+                file.write(",".join(data))
                 file.write("\n")
         else:
             print(data)

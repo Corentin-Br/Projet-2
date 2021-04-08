@@ -83,10 +83,10 @@ def category_page_scraping(url_category, first_pass=True, getpic=False):
             try:
                 category = soup.find("div", {"class": "page-header"}).find("h1").text
                 creer_dossier(category)
-                with open("{cat}\\{cat}.csv".format(cat=category), "w") as file:
-                    file.write("product_page_url, universal_product_code (upc), title, price_including_tax,"
-                               + " price_excluding_tax, number_available, product_description, category, review_rating,"
-                               + " image_url, nom_exact_image \n")
+                with open(f"{category}\\{category}.csv", "w") as file:
+                    file.write("product_page_url,universal_product_code (upc),title,price_including_tax,"
+                               + "price_excluding_tax,number_available,product_description,category,review_rating,"
+                               + "image_url,nom_exact_image\n")
             except AttributeError:
                 fatal(url_category, "catégorie, trouver la catégorie")
                 return
@@ -106,11 +106,11 @@ def category_page_scraping(url_category, first_pass=True, getpic=False):
 
             if type(data_from_a_book) == list:  # #la fonction page_scraping ne renvoie pas une liste si elle a eu une
                 # erreur
-                with open("{cat}\\{cat}.csv".format(cat=data_from_a_book[-4]), "a") as file:
-                    file.write(", ".join(data_from_a_book))
+                with open(f"{data_from_a_book[-4]}\\{data_from_a_book[-4]}.csv", "a") as file:
+                    file.write(",".join(data_from_a_book))
                     file.write("\n")
             else:
-                return "Il y a eu une erreur : {error}".format(error=data_from_a_book)
+                return f"Il y a eu une erreur : {data_from_a_book}"
 
             next_button = soup.find("li", {"class": "next"})
 
@@ -120,7 +120,7 @@ def category_page_scraping(url_category, first_pass=True, getpic=False):
             url_category = "/".join(url_category)
             category_page_scraping(url_category, first_pass=False, getpic=getpic)
     else:
-        return "Une erreur est survenue et la page {url} n'a pas pu être atteinte.".format(url=url_category)
+        return f"Une erreur est survenue et la page {url_category} n'a pas pu être atteinte."
 
 
 if __name__ == "__main__":  # #Permet au script d'être utilisé en standalone pour scraper une catégorie précise,
