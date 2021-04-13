@@ -130,6 +130,6 @@ if __name__ == "__main__":  # #Permet au script d'être utilisé en standalone p
                 file.write("\n")
         else:
             print(data)
-        continuer = input("Voulez-vous scraper un autre page? (y/n)")
+        continuer = input("Voulez-vous scraper une autre page? (y/n)")
         if continuer not in ("y", "n"):
             print("Votre réponse n'est pas valide, le script va s'arrêter")

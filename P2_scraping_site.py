@@ -5,7 +5,7 @@ from multiprocessing import Pool
 from os import chdir
 
 
-def site_scraping():
+def site_scraping(getpic):
     response = requests.get("http://books.toscrape.com/index.html")
     response.encoding = "utf-8"
     if response.ok:
@@ -15,7 +15,7 @@ def site_scraping():
         for a in content:
             value = a.get("href")
             value = "http://books.toscrape.com/" + value
-            liste_categories.append((value, True, True))
+            liste_categories.append((value, True, getpic))
         creer_dossier("Books_to_scrape")
         chdir("Books_to_scrape")
         with Pool() as pool:
@@ -27,6 +27,14 @@ def site_scraping():
 
 
 if __name__ == "__main__":
+    pic = input("Voulez-vous récupérer toutes les images des livres présents sur le site? (y/n)")
+    if pic == "y":
+        pic = True
+    elif pic != "n":
+        print("Votre réponse n'est pas valide. Les images ne seront pas récupérées.")
+        pic = False
+    else:
+        pic = False
     print("Le scraping est en cours, patientez quelques minutes.")
-    site_scraping()
+    site_scraping(pic)
     print("scraping terminé!")
