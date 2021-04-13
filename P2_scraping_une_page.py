@@ -78,7 +78,7 @@ def page_scraping(url_page=str(), getpic=False):
 
         description = description.replace("\n", "")
         description = description.strip()
-        description.replace("\"", "❞")
+        description = description.replace("\"", "❞")
         description = "\"" + description + "\""  # #L'ajout des guillemets permet à Libre Office
         # de l'ouvrir correctement (avec les bons paramètres). Il y a peut-être moyen de faire mieux.
 
