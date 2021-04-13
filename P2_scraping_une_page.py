@@ -6,7 +6,7 @@ def cleaning(string):  # #Try to make sure the name will be valid for a file nam
     forbidden_characters = ["\\", "/", ":", "*", "?", "\"", "<", ">", "|", ","]
     for char in forbidden_characters:
         if char in string:
-            string = " ".join(string.split(char)).strip()
+            string = string.replace(char, " ")
     return string
 
 
