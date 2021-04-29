@@ -10,17 +10,17 @@ def cleaning(string):  # #Try to make sure the name will be valid for a file nam
     return string
 
 
-def get_image(image_url, category, title):
+def get_image(image_url, category, upc):
     reponse = requests.get(image_url)
     if reponse.ok:
         try:
-            with open(f"{category}\\{cleaning(title)}.jpg", "wb") as file_image:
+            with open(f"{category}\\{cleaning(upc)}.jpg", "wb") as file_image:
                 file_image.write(reponse.content)
         except FileNotFoundError:  # #Pour que ça marche en solo
-            with open(f"{cleaning(title)}.jpg", "wb") as file_image:
+            with open(f"{cleaning(upc)}.jpg", "wb") as file_image:
                 file_image.write(reponse.content)
     else:
-        get_image(image_url, category, title)
+        get_image(image_url, category, upc)
 
 
 def fatal(url_probleme, raison):
@@ -99,10 +99,10 @@ def page_scraping(url_page=str(), getpic=False):
             fatal(url_page, "l'image")
             return
         if getpic:
-            get_image(image, category, cleaning(title))
+            get_image(image, category, cleaning(tags_to_search["UPC"]))
         return [url_page, tags_to_search["UPC"], title, tags_to_search["Price (incl. tax)"],
                 tags_to_search["Price (excl. tax)"], number_available, description, category, rating, image,
-                cleaning(title)]
+                cleaning(tags_to_search["UPC"])]
     else:
         return f"Une erreur est survenue et la page {url_page} n'a pas pu être atteinte."
 
